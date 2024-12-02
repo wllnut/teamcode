@@ -13,8 +13,6 @@ public class W_TELEOP extends LinearOpMode {
   // Lift Initialization
   private enum LIFT_STATE {
     LIFT_START,
-    LIFT_EXTEND,
-    LIFT_RETRACT,
     LIFT_ROTATE_UP,
     LIFT_ROTATE_DOWN,
     LIFT_INTAKE,
@@ -33,9 +31,10 @@ public class W_TELEOP extends LinearOpMode {
 
   // Motor and Servo Initialization
   private HashMap<String, DcMotor> motors = motor_init();
+  private DcMotor[] motors_arm = new DcMotor[2];
   private DcMotor[] motors_movement = new DcMotor[4];
-  private DcMotor motors_aRotate;
-  private DcMotor motors_aExtend;
+  private DcMotor motors_aRotate1;
+  private DcMotor motors_aRotate2;
 
   private HashMap<String, Servo> servos = servo_init();
   private Servo servo_lift;
@@ -48,8 +47,10 @@ public class W_TELEOP extends LinearOpMode {
     // motors_movement[1] = motors.get("rFront");
     motors_movement[2] = motors.get("lBack");
     motors_movement[3] = motors.get("rBack");
-    motors_aRotate = motors.get("aRotate");
-    motors_aExtend = motors.get("aExtend");
+    motors_arm[0] = motors.get("aRotate1");
+    motors_arm[1] = motors.get("aRotate2");
+    motors_aRotate = motors.get("aRotate1");
+    motors_aExtend = motors.get("aRotate2");
     servo_lift = servos.get("iRotate");
 
     waitForStart();
@@ -81,8 +82,8 @@ public class W_TELEOP extends LinearOpMode {
     motors.put("rBack", hardwareMap.get(DcMotor.class, "rBack"));
 
     // Arm Control
-    motors.put("aRotate", hardwareMap.get(DcMotor.class, "aRotate"));
-    motors.put("aExtend", hardwareMap.get(DcMotor.class, "aExtend"));
+    motors.put("aRotate1", hardwareMap.get(DcMotor.class, "aRotate1"));
+    motors.put("aRotate2", hardwareMap.get(DcMotor.class, "aRotate2"));
 
     motors.get("lBack").setDirection(DcMotorSimple.Direction.REVERSE); // Modify or add lines if motor setup changes
 
@@ -98,46 +99,26 @@ public class W_TELEOP extends LinearOpMode {
         lift_state_set(lift_state_await_input());
 
         break;
-
-      case LIFT_EXTEND:
-        if (lift_is_extended()) {
-          motors_aExtend.setPower(0.0);
-          lift_state_reset();
-          break;
-        }
-        motors_aExtend.setDirection(DcMotorSimple.Direction.REVERSE);
-        motors_aExtend.setPower(1.0);
-        break;
-
-      case LIFT_RETRACT:
-        if (lift_is_retracted()) {
-          motors_aExtend.setPower(0.0);
-          lift_state_reset();
-          break;
-        }
-        motors_aExtend.setDirection(DcMotorSimple.Direction.FORWARD);
-        motors_aExtend.setPower(1.0);
-        break;
-
+        
       case LIFT_ROTATE_UP:
         if (lift_is_rotated_up()) {
-          motors_aRotate.setPower(0.0);
+          motors_aRotate1.setPower(0.0);
+          motors_aRotate2.setPower(0.0);
           lift_state_reset();
           break;
         }
-        motors_aRotate.setDirection(DcMotorSimple.Direction.FORWARD);
-        motors_aRotate.setPower(1.0);
+        arm_rotate(DcMotorSimple.Direction.FORWARD);
         break;
 
       case LIFT_ROTATE_DOWN:
         if (lift_is_rotated_down()) {
-          motors_aRotate.setPower(0.0);
+          motors_aRotate1.setPower(0.0);
+          motors_aRotate2.setPower(0.0);
           lift_state_reset();
           break;
         }
-        motors_aRotate.setDirection(DcMotorSimple.Direction.REVERSE);
+        arm_rotate(DcMotorSimple.Direction.REVERSE);
         servo_lift.setPosition(1.0);
-        motors_aRotate.setPower(1.0);
         break;
 
       case LIFT_INTAKE:
@@ -167,7 +148,7 @@ public class W_TELEOP extends LinearOpMode {
         lift_state_reset();
         break;
     }
-    if (gamepad2.a && lift_state != LIFT_STATE.LIFT_START) {
+    if (gamepad2.back && lift_state != LIFT_STATE.LIFT_START) {
       lift_state_reset();
     }
 
@@ -210,13 +191,9 @@ public class W_TELEOP extends LinearOpMode {
   }
 
   private LIFT_STATE lift_state_await_input() {
-    if (gamepad2.dpad_up) {
-      return LIFT_STATE.LIFT_EXTEND;
-    } else if (gamepad2.dpad_down) {
-      return LIFT_STATE.LIFT_RETRACT;
-    } else if (gamepad2.dpad_left) {
+    if (gamepad2.dpad_down) {
       return LIFT_STATE.LIFT_ROTATE_DOWN;
-    } else if (gamepad2.dpad_right) {
+    } else if (gamepad2.dpad_up) {
       return LIFT_STATE.LIFT_ROTATE_UP;
     } else if (gamepad2.x) {
       return LIFT_STATE.LIFT_INTAKE;
@@ -228,6 +205,15 @@ public class W_TELEOP extends LinearOpMode {
       return LIFT_STATE.LIFT_START;
     }
   }
+
+  
+  private void arm_rotate(DcMotorSimple.Direction dir) {
+     for (motor : motors_arm) {
+        motor.setDirection(dir);
+        motor.setPower(1.0);
+       }
+  }
+
 
   private void destruct() {
     // Stops off all motors and servos
