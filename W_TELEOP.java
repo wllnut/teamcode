@@ -101,32 +101,29 @@ public class W_TELEOP extends LinearOpMode {
         break;
         
       case LIFT_ROTATE_UP:
-        if (lift_is_rotated_up()) {
+        if (lift_is_extended()) {
           motors_aRotate1.setPower(0.0);
           motors_aRotate2.setPower(0.0);
           lift_state_reset();
           break;
         }
         arm_rotate(DcMotorSimple.Direction.FORWARD);
+        servo_lift.setPosition(1.0);
         break;
 
       case LIFT_ROTATE_DOWN:
-        if (lift_is_rotated_down()) {
+        if (lift_is_retracted()) {
           motors_aRotate1.setPower(0.0);
           motors_aRotate2.setPower(0.0);
           lift_state_reset();
           break;
         }
         arm_rotate(DcMotorSimple.Direction.REVERSE);
-        servo_lift.setPosition(1.0);
         break;
 
       case LIFT_INTAKE:
-        if (intake_is_finished()) {
-          servo_lift.setPosition(0.0);
-          lift_state_reset();
-        }
         servo_lift.setPosition(1.0);
+        lift_state_reset();
         break;
 
       case LIFT_DUMP:
@@ -176,10 +173,6 @@ public class W_TELEOP extends LinearOpMode {
 
   private boolean lift_has_dumped() {
     return (lift_timer.seconds() >= LIFT_DUMP_TIME);
-  }
-
-  private boolean intake_is_finished() {
-    return (lift_state != LIFT_STATE.LIFT_INTAKE);
   }
 
   private void lift_state_reset() {
