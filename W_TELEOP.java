@@ -136,6 +136,14 @@ public class W_TELEOP extends LinearOpMode {
         break;
 
       case LIFT_RETURN:
+        motors.foreach((key, value) -> {
+          value.setPower(0.0);
+        });
+
+        servos.foreach((key, value) -> {
+          value.setPosition(0.0);
+        });
+        
         lift_state_reset();
 
         break;
@@ -146,7 +154,7 @@ public class W_TELEOP extends LinearOpMode {
         break;
     }
     if (gamepad2.back && lift_state != LIFT_STATE.LIFT_START) {
-      lift_state_reset();
+      lift_state_set(LIFT_STATE.LIFT_RETURN);
     }
 
     updateDrive();
