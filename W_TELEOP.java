@@ -167,8 +167,8 @@ public class W_TELEOP extends LinearOpMode {
 
     // motors_movement[0].setPower(analog_stick_left_y); // Left Front
     // motors_movement[1].setPower(analog_stick_right_y); // Right Front
-    motors_movement[2].setPower(analog_stick_left_y); // Left Back
-    motors_movement[3].setPower(analog_stick_right_y); // Right Back
+    motors_movement[0].setPower(analog_stick_left_y); // Left Back
+    motors_movement[1].setPower(analog_stick_right_y); // Right Back
   }
 
   private boolean lift_is_extended() {
