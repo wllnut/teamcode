@@ -45,8 +45,8 @@ public class W_TELEOP extends LinearOpMode {
     // Initialize motor and servo arrays
     // motors_movement[0] = motors.get("lFront");
     // motors_movement[1] = motors.get("rFront");
-    motors_movement[2] = motors.get("lBack");
-    motors_movement[3] = motors.get("rBack");
+    motors_movement[0] = motors.get("lBack");
+    motors_movement[1] = motors.get("rBack");
     motors_arm[0] = motors.get("aRotate1");
     motors_arm[1] = motors.get("aRotate2");
     motors_aRotate = motors.get("aRotate1");
