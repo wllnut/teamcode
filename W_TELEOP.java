@@ -49,35 +49,38 @@ public class W_TELEOP extends LinearOpMode {
   public void runOpMode() {
     // Initialize motor and servo arrays
 
-    // Setup Servo HashMap
+    // Initialize Servo HashMap
     servos = new HashMap<>();
     
-    // Setup Motor HashMap
+    // Initialize Motor HashMap
     motors = new HashMap<>();
     
-    // Intake Rotation
+    // Add Intake Servos to map
     servos.put("iRotate1", hardwareMap.get(Servo.class, "s1"));
     servos.put("iRotate2", hardwareMap.get(Servo.class, "s2"));
     
-    // Movement
+    // Add Movement Motors to map
     motors.put("lBack", hardwareMap.get(DcMotor.class, "0"));
     motors.put("rBack", hardwareMap.get(DcMotor.class, "1"));
 
-    // Arm Control
+    // Arm Control Motors
     motors.put("aRotate1", hardwareMap.get(DcMotor.class, "2"));
     motors.put("aRotate2", hardwareMap.get(DcMotor.class, "3"));
 
-    motors.get("lBack").setDirection(DcMotorSimple.Direction.REVERSE); // Modify or add lines if motor setup changes
+    // motors.get("lBack").setDirection(DcMotorSimple.Direction.REVERSE); // Modify or add lines if motor setup changes
 
     motors_movement[0] = motors.get("lBack");
     motors_movement[1] = motors.get("rBack");
-    motors_arm[0] = motors.get("aRotate1");
-    motors_arm[1] = motors.get("aRotate2");
+    
+    motors_movement[0].setDirection(DcMotorSimple.Direction.REVERSE); // Reverse Rear Left motor (untest - change if incorrect)
+
     motors_aRotate1 = motors.get("aRotate1");
     motors_aRotate2 = motors.get("aRotate2");
+    motors_arm[0] = motors_aRotate1
+    motors_arm[1] = motors_aRotate2
+  
     servo_lift_1 = servos.get("iRotate1");
     servo_lift_2 = servos.get("iRotate2");
-    
     
     waitForStart();
 
