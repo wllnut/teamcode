@@ -1,13 +1,17 @@
+package org.firstinspires.ftc.teamcode;
 
-// Robot Dependencies
-import com.qualcomm.robotcore.eventloop.opmode.*;
-import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.*;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 // Utils
 import java.util.HashMap;
 
-@TeleOp(name = "William TeleOp", group = "Linear Opmode")
+@TeleOp
 public class W_TELEOP extends LinearOpMode {
 
   // Lift Initialization
@@ -25,18 +29,18 @@ public class W_TELEOP extends LinearOpMode {
   ElapsedTime lift_timer = new ElapsedTime();
 
   // Requires manual calibration
-  final double LIFT_EXTEND_TIME = 0;
-  final double LIFT_RETRACT_TIME = 0;
-  final double LIFT_DUMP_TIME = 0;
+  final double LIFT_EXTEND_TIME = 3;
+  final double LIFT_RETRACT_TIME = 3;
+  final double LIFT_DUMP_TIME = 1.5;
 
   // Motor and Servo Initialization
-  private HashMap<String, DcMotor> motors = motor_init();
+  private HashMap<String, DcMotor> motors;
   private DcMotor[] motors_arm = new DcMotor[2];
   private DcMotor[] motors_movement = new DcMotor[4];
   private DcMotor motors_aRotate1;
   private DcMotor motors_aRotate2;
 
-  private HashMap<String, Servo> servos = servo_init();
+  private HashMap<String, Servo> servos;
   private Servo servo_lift_1;
   private Servo servo_lift_2;
 
@@ -44,55 +48,44 @@ public class W_TELEOP extends LinearOpMode {
   @Override
   public void runOpMode() {
     // Initialize motor and servo arrays
-    // motors_movement[0] = motors.get("lFront");
-    // motors_movement[1] = motors.get("rFront");
+
+    // Setup Servo HashMap
+    servos = new HashMap<>();
+    
+    // Setup Motor HashMap
+    motors = new HashMap<>();
+    
+    // Intake Rotation
+    servos.put("iRotate1", hardwareMap.get(Servo.class, "s1"));
+    servos.put("iRotate2", hardwareMap.get(Servo.class, "s2"));
+    
+    // Movement
+    motors.put("lBack", hardwareMap.get(DcMotor.class, "0"));
+    motors.put("rBack", hardwareMap.get(DcMotor.class, "1"));
+
+    // Arm Control
+    motors.put("aRotate1", hardwareMap.get(DcMotor.class, "2"));
+    motors.put("aRotate2", hardwareMap.get(DcMotor.class, "3"));
+
+    motors.get("lBack").setDirection(DcMotorSimple.Direction.REVERSE); // Modify or add lines if motor setup changes
+
     motors_movement[0] = motors.get("lBack");
     motors_movement[1] = motors.get("rBack");
     motors_arm[0] = motors.get("aRotate1");
     motors_arm[1] = motors.get("aRotate2");
-    motors_aRotate = motors.get("aRotate1");
-    motors_aExtend = motors.get("aRotate2");
+    motors_aRotate1 = motors.get("aRotate1");
+    motors_aRotate2 = motors.get("aRotate2");
     servo_lift_1 = servos.get("iRotate1");
-    servo_lift_2 = servos.get("iRotate2")';
-
+    servo_lift_2 = servos.get("iRotate2");
+    
+    
     waitForStart();
 
     while (opModeIsActive()) {
       main_loop();
     }
-    destruct();
   }
-
-  private HashMap<String, Servo> servo_init() {
-    // Setup Servo HashMap
-    HashMap<String, Servo> servos = new HashMap<>();
-
-    // Intake Rotation
-    servos.put("iRotate1", hardwareMap.get(Servo.class, "iRotate1"));
-    servos.put("iRotate2", hardwareMap.get(Servo.class, "iRotate2"));
-
-    return servos;
-  }
-
-  private HashMap<String, DcMotor> motor_init() {
-    // Setup Motor HashMap
-    HashMap<String, DcMotor> motors = new HashMap<>();
-
-    // Movement
-    // motors.put("lFront", hardwareMap.get(DcMotor.class, "lFront"));
-    // motors.put("rFront", hardwareMap.get(DcMotor.class, "rFront"));
-    motors.put("lBack", hardwareMap.get(DcMotor.class, "lBack"));
-    motors.put("rBack", hardwareMap.get(DcMotor.class, "rBack"));
-
-    // Arm Control
-    motors.put("aRotate1", hardwareMap.get(DcMotor.class, "aRotate1"));
-    motors.put("aRotate2", hardwareMap.get(DcMotor.class, "aRotate2"));
-
-    motors.get("lBack").setDirection(DcMotorSimple.Direction.REVERSE); // Modify or add lines if motor setup changes
-
-    return motors;
-  }
-
+  
   public void main_loop() {
     // Arm Control Finite State Machine
     switch (lift_state) {
@@ -143,11 +136,11 @@ public class W_TELEOP extends LinearOpMode {
         break;
 
       case LIFT_RETURN:
-        motors.foreach((key, value) -> {
+        motors.forEach((key, value) -> {
           value.setPower(0.0);
         });
 
-        servos.foreach((key, value) -> {
+        servos.forEach((key, value) -> {
           value.setPosition(0.0);
         });
         
@@ -216,22 +209,10 @@ public class W_TELEOP extends LinearOpMode {
 
   
   private void arm_rotate(DcMotorSimple.Direction dir) {
-     for (motor : motors_arm) {
-        motor.setDirection(dir);
-        motor.setPower(1.0);
+     for (int i = 0; i < motors_arm.length; i++) {
+        motors_arm[i].setDirection(dir);
+        motors_arm[i].setPower(1.0);
        }
-  }
-
-
-  private void destruct() {
-    // Stops off all motors and servos
-    motors.foreach((key, value) -> {
-      value.setPower(0.0);
-    });
-
-    servos.foreach((key, value) -> {
-      value.setPosition(0.0);
-    });
   }
 
 }
