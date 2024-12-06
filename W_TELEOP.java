@@ -37,7 +37,8 @@ public class W_TELEOP extends LinearOpMode {
   private DcMotor motors_aRotate2;
 
   private HashMap<String, Servo> servos = servo_init();
-  private Servo servo_lift;
+  private Servo servo_lift_1;
+  private Servo servo_lift_2;
 
   // Gamepad Initialization
   @Override
@@ -51,7 +52,8 @@ public class W_TELEOP extends LinearOpMode {
     motors_arm[1] = motors.get("aRotate2");
     motors_aRotate = motors.get("aRotate1");
     motors_aExtend = motors.get("aRotate2");
-    servo_lift = servos.get("iRotate");
+    servo_lift_1 = servos.get("iRotate1");
+    servo_lift_2 = servos.get("iRotate2")';
 
     waitForStart();
 
@@ -66,7 +68,8 @@ public class W_TELEOP extends LinearOpMode {
     HashMap<String, Servo> servos = new HashMap<>();
 
     // Intake Rotation
-    servos.put("iRotate", hardwareMap.get(Servo.class, "iRotate"));
+    servos.put("iRotate1", hardwareMap.get(Servo.class, "iRotate1"));
+    servos.put("iRotate2", hardwareMap.get(Servo.class, "iRotate2"));
 
     return servos;
   }
@@ -108,7 +111,8 @@ public class W_TELEOP extends LinearOpMode {
           break;
         }
         arm_rotate(DcMotorSimple.Direction.FORWARD);
-        servo_lift.setPosition(1.0);
+        servo_lift_1.setPosition(1.0);
+        servo_lift_2.setPosition(1.0);
         break;
 
       case LIFT_ROTATE_DOWN:
@@ -122,17 +126,20 @@ public class W_TELEOP extends LinearOpMode {
         break;
 
       case LIFT_INTAKE:
-        servo_lift.setPosition(1.0);
+        servo_lift_1.setPosition(1.0);
+        servo_lift_2.setPosition(1.0);
         lift_state_reset();
         break;
 
       case LIFT_DUMP:
         if (lift_has_dumped()) {
-          servo_lift.setPosition(0.0);
+          servo_lift_1.setPosition(0.0);
+          servo_lift_2.setPosition(0.0);
           lift_state_reset();
           break;
         }
-        servo_lift.setPosition(-1.0);
+        servo_lift_1.setPosition(-1.0);
+        servo_lift_2.setPosition(-1.0);
         break;
 
       case LIFT_RETURN:
